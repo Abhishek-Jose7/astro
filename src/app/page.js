@@ -161,7 +161,7 @@ export default function HomePage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.45, duration: 0.9, ease: [0.23, 1, 0.32, 1] }}
                   >
-                    <span className={styles.heroLine1}>The Velvet</span>
+                    <span className={styles.heroLine1}>The </span>
                     <span className={styles.heroLine2}>Oracle</span>
                   </motion.h1>
 
