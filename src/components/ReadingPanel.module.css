@@ -1,0 +1,360 @@
+﻿.container {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--space-lg);
+}
+
+/* ─── Header ─── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-3xl);
+  padding: var(--space-xl) var(--space-2xl);
+  background: linear-gradient(140deg, rgba(16,10,30,0.88), rgba(8,5,18,0.94));
+  border: 1px solid rgba(124, 92, 191, 0.28);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 20px 52px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(200,180,255,0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: -60%;
+  right: -20%;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(91,63,160,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: rgba(124, 92, 191, 0.08);
+  border: 1px solid rgba(124, 92, 191, 0.24);
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  white-space: nowrap;
+}
+
+.backBtn:hover {
+  color: var(--amethyst);
+  border-color: rgba(124, 92, 191, 0.48);
+  background: rgba(124, 92, 191, 0.16);
+}
+
+.headerCenter {
+  text-align: center;
+  flex: 1;
+  min-width: 220px;
+}
+
+.headerEyebrow {
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--amethyst);
+  margin-bottom: 4px;
+}
+
+.headerTitle {
+  font-family: var(--font-heading);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: linear-gradient(130deg, var(--gold-light), var(--gold-accent) 50%, var(--amethyst));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--space-sm);
+  line-height: 1.15;
+}
+
+.meta {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.sunSignBadge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  background: rgba(124, 92, 191, 0.12);
+  border: 1px solid rgba(124, 92, 191, 0.3);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 14px rgba(91,63,160,0.2);
+}
+
+.signSymbol {
+  font-size: 2rem;
+  line-height: 1;
+  display: block;
+}
+
+.signLabel {
+  font-family: var(--font-heading);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 2px;
+}
+
+.signName {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gold-light);
+  margin: 0;
+  letter-spacing: 0.06em;
+}
+
+/* ─── Fortune Banner ─── */
+.fortuneBanner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-2xl);
+  margin-bottom: var(--space-2xl);
+  background: linear-gradient(145deg, rgba(91,63,160,0.15), rgba(8,5,18,0.92));
+  border: 1.5px solid rgba(124, 92, 191, 0.3);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  box-shadow:
+    0 16px 48px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(200,180,255,0.06),
+    0 0 60px rgba(91,63,160,0.08);
+  backdrop-filter: blur(12px);
+}
+
+/* Fortune Orb */
+.fortuneOrbWrap {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fortuneOrbPulse {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124,92,191,0.4) 0%, transparent 70%);
+  will-change: transform, opacity;
+}
+
+.fortuneOrbSvg {
+  position: relative;
+  z-index: 1;
+  animation: slowSpin 30s linear infinite;
+  will-change: transform;
+}
+
+@keyframes slowSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.fortuneMessage {
+  font-size: 1.3rem;
+  font-style: italic;
+  color: var(--text-primary);
+  max-width: 580px;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+/* ─── Lucky Grid ─── */
+.luckyGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-3xl);
+}
+
+.luckyCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-xl) var(--space-md);
+  background: linear-gradient(145deg, rgba(124,92,191,0.1), rgba(8,5,18,0.85));
+  border: 1px solid rgba(124, 92, 191, 0.22);
+  border-radius: var(--radius-md);
+  text-align: center;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.luckyCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(200,180,255,0.08), transparent);
+  transition: left 0.55s ease;
+}
+
+.luckyCard:hover::before {
+  left: 100%;
+}
+
+.luckyCard:hover {
+  transform: translateY(-4px);
+  border-color: rgba(124, 92, 191, 0.44);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.3), 0 0 20px rgba(91,63,160,0.18);
+}
+
+.luckyNum {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--amethyst);
+}
+
+.luckyLabel {
+  font-family: var(--font-heading);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.luckyValue {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--gold-light), var(--amethyst));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Layout Sections ─── */
+.section {
+  margin-bottom: var(--space-3xl);
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2xl);
+  margin-bottom: var(--space-3xl);
+}
+
+/* Report Header */
+.reportHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.reportHeaderLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(124,92,191,0.4), transparent);
+}
+
+.reportTitle {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: linear-gradient(130deg, var(--gold-light), var(--gold-accent) 50%, var(--amethyst));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 14px rgba(124,92,191,0.3));
+}
+
+.reportSubtitle {
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid rgba(124,92,191,0.18);
+}
+
+/* ─── Footer ─── */
+.footer {
+  text-align: center;
+  padding: var(--space-3xl) 0 var(--space-xl);
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 1rem;
+  border-top: 1px solid rgba(124, 92, 191, 0.14);
+  margin-top: var(--space-3xl);
+}
+
+.disclaimer {
+  font-size: 0.82rem;
+  margin-top: var(--space-md);
+  opacity: 0.6;
+  line-height: 1.6;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-xl);
+  }
+
+  .headerCenter {
+    min-width: auto;
+  }
+
+  .sunSignBadge {
+    justify-content: center;
+  }
+
+  .luckyGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .twoCol {
+    grid-template-columns: 1fr;
+  }
+}

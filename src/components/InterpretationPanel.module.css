@@ -1,0 +1,123 @@
+﻿.container {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.title {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: var(--space-md);
+  background: linear-gradient(135deg, var(--gold-light), var(--amethyst));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.divider {
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+  margin: 0 auto var(--space-2xl);
+  box-shadow: 0 0 12px rgba(212, 165, 116, 0.3);
+}
+
+.section {
+  margin-bottom: var(--space-2xl);
+  padding: var(--space-xl);
+  padding-bottom: var(--space-xl);
+  background: linear-gradient(135deg, rgba(212, 165, 116, 0.03), rgba(139, 114, 255, 0.02));
+  border: 1px solid rgba(212, 165, 116, 0.1);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-normal);
+}
+
+.section:hover {
+  border-color: rgba(212, 165, 116, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.emoji {
+  font-size: 1.6rem;
+  display: inline-block;
+}
+
+.sectionLabel {
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.signBadge {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1.5px solid;
+  text-transform: capitalize;
+  font-weight: 600;
+  transition: all var(--transition-normal);
+}
+
+.signBadge:hover {
+  transform: scale(1.05);
+}
+
+.fire {
+  color: var(--element-fire);
+  border-color: rgba(255, 107, 53, 0.4);
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.12), rgba(255, 107, 53, 0.05));
+}
+
+.earth {
+  color: var(--element-earth);
+  border-color: rgba(80, 200, 120, 0.4);
+  background: linear-gradient(135deg, rgba(80, 200, 120, 0.12), rgba(80, 200, 120, 0.05));
+}
+
+.air {
+  color: var(--element-air);
+  border-color: rgba(74, 158, 255, 0.4);
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.12), rgba(74, 158, 255, 0.05));
+}
+
+.water {
+  color: var(--element-water);
+  border-color: rgba(100, 200, 255, 0.4);
+  background: linear-gradient(135deg, rgba(100, 200, 255, 0.12), rgba(100, 200, 255, 0.05));
+}
+
+.readingTitle {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--gold-light), var(--crimson-veil));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--space-lg);
+  margin-top: var(--space-md);
+}
+
+.readingText {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.9;
+  max-width: 650px;
+  letter-spacing: 0.02em;
+}
+

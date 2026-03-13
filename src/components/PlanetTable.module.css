@@ -1,0 +1,105 @@
+﻿.container {
+  overflow: hidden;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+  font-size: 1.4rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--gold-light), var(--amethyst));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(212, 165, 116, 0.1);
+  background: linear-gradient(135deg, rgba(212, 165, 116, 0.03), rgba(139, 114, 255, 0.02));
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+}
+
+.table th {
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: var(--space-md) var(--space-lg);
+  text-align: left;
+  border-bottom: 1.5px solid rgba(212, 165, 116, 0.2);
+  background: linear-gradient(135deg, rgba(212, 165, 116, 0.08), rgba(139, 114, 255, 0.04));
+  font-weight: 700;
+}
+
+.table td {
+  padding: var(--space-md) var(--space-lg);
+  font-size: 1rem;
+  border-bottom: 1px solid rgba(212, 165, 116, 0.08);
+  vertical-align: middle;
+  transition: background 0.2s ease;
+}
+
+.table tr:hover td {
+  background: rgba(212, 165, 116, 0.05);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.planetCell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.glyph {
+  font-size: 1.4rem;
+  color: var(--gold-light);
+  display: inline-block;
+}
+
+.signCell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.fire { color: var(--element-fire); }
+.earth { color: var(--element-earth); }
+.air { color: var(--element-air); }
+.water { color: var(--element-water); }
+
+.degCell {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.retroCell {
+  text-align: center;
+}
+
+.retroBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(212, 165, 116, 0.15);
+  color: var(--gold);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
