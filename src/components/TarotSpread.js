@@ -18,20 +18,35 @@ function TarotCard({ entry, index }) {
         <span className={styles.positionPrompt}>{entry.position.prompt}</span>
       </header>
 
-      <div className={`${styles.card} ${styles[entry.card.palette]}`}>
-        <div className={`${styles.cardFace} ${isReversed ? styles.reversed : ''}`}>
-          <div className={styles.cardTop}>
-            <span className={styles.arcana}>{entry.card.number}</span>
-            <span className={styles.orientation}>{entry.orientation}</span>
+      <div className={`${styles.cardScene} ${styles[entry.card.palette]}`}>
+        <div className={styles.card}>
+          <div className={styles.cardBack}>
+            <div className={styles.backOrbit} />
+            <div className={styles.backFrame}>
+              <span className={styles.backLabel}>Turn the card</span>
+              <span className={styles.backMark}>{entry.position.title}</span>
+              <div className={styles.backSigil}>
+                <span className={styles.backDot} />
+                <span className={styles.backDiamond} />
+                <span className={styles.backDot} />
+              </div>
+            </div>
           </div>
 
-          <div className={styles.symbol}>{entry.card.icon}</div>
-          <h3 className={styles.cardName}>{entry.card.name}</h3>
+          <div className={`${styles.cardFace} ${isReversed ? styles.reversed : ''}`}>
+            <div className={styles.cardTop}>
+              <span className={styles.arcana}>{entry.card.number}</span>
+              <span className={styles.orientation}>{entry.orientation}</span>
+            </div>
 
-          <div className={styles.keywords}>
-            {entry.keywords.map((keyword) => (
-              <span key={keyword} className={styles.keywordChip}>{keyword}</span>
-            ))}
+            <div className={styles.symbol}>{entry.card.icon}</div>
+            <h3 className={styles.cardName}>{entry.card.name}</h3>
+
+            <div className={styles.keywords}>
+              {entry.keywords.map((keyword) => (
+                <span key={keyword} className={styles.keywordChip}>{keyword}</span>
+              ))}
+            </div>
           </div>
         </div>
       </div>

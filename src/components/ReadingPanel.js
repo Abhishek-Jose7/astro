@@ -107,8 +107,12 @@ export default function ReadingPanel({ reading, birthData, onBack }) {
           { num: 'II',  label: 'Lucky Colors',  value: reading.fortune?.luckyColors?.join(' · ') },
           { num: 'III', label: 'Lucky Day',     value: reading.fortune?.luckyDay },
           { num: 'IV',  label: 'Power Hour',    value: reading.fortune?.powerHour },
-        ].map(item => (
-          <motion.div key={item.num} className={styles.luckyCard} variants={fadeUp}>
+        ].map((item, i) => (
+          <motion.div
+            key={item.num}
+            className={`${styles.luckyCard} ${styles[`luckyCard${i + 1}`]}`}
+            variants={fadeUp}
+          >
             <span className={styles.luckyNum}>{item.num}</span>
             <span className={styles.luckyLabel}>{item.label}</span>
             <span className={styles.luckyValue}>{item.value}</span>
@@ -120,8 +124,12 @@ export default function ReadingPanel({ reading, birthData, onBack }) {
 
       {/* Element Balance + Numerology */}
       <section className={styles.twoCol}>
-        <ElementBar balance={reading.elementBalance} />
-        <NumerologyCard numerology={reading.numerology} />
+        <motion.div className={styles.panelA} variants={fadeUp} initial="hidden" animate="visible">
+          <ElementBar balance={reading.elementBalance} />
+        </motion.div>
+        <motion.div className={styles.panelB} variants={fadeUp} initial="hidden" animate="visible">
+          <NumerologyCard numerology={reading.numerology} />
+        </motion.div>
       </section>
 
       {/* Comprehensive Analysis */}

@@ -1,6 +1,6 @@
 ﻿.container {
   width: 100%;
-  max-width: 1080px;
+  max-width: 1220px;
   margin: 0 auto;
   padding: var(--space-2xl) var(--space-lg);
 }
@@ -16,7 +16,7 @@
   padding: var(--space-xl) var(--space-2xl);
   background: linear-gradient(140deg, rgba(16,10,30,0.88), rgba(8,5,18,0.94));
   border: 1px solid rgba(124, 92, 191, 0.28);
-  border-radius: var(--radius-lg);
+  border-radius: 30px 16px 28px 20px;
   box-shadow:
     0 20px 52px rgba(0,0,0,0.5),
     inset 0 1px 0 rgba(200,180,255,0.06);
@@ -141,7 +141,7 @@
   margin-bottom: var(--space-2xl);
   background: linear-gradient(145deg, rgba(91,63,160,0.15), rgba(8,5,18,0.92));
   border: 1.5px solid rgba(124, 92, 191, 0.3);
-  border-radius: var(--radius-lg);
+  border-radius: 22px 30px 18px 26px;
   text-align: center;
   box-shadow:
     0 16px 48px rgba(0,0,0,0.45),
@@ -193,10 +193,12 @@
 
 /* ─── Lucky Grid ─── */
 .luckyGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-md);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.9rem 1rem;
   margin-bottom: var(--space-3xl);
+  align-items: start;
 }
 
 .luckyCard {
@@ -208,11 +210,32 @@
   padding: var(--space-xl) var(--space-md);
   background: linear-gradient(145deg, rgba(124,92,191,0.1), rgba(8,5,18,0.85));
   border: 1px solid rgba(124, 92, 191, 0.22);
-  border-radius: var(--radius-md);
+  border-radius: 22px 14px 24px 14px;
   text-align: center;
   transition: all var(--transition-normal);
   position: relative;
   overflow: hidden;
+  width: min(260px, 100%);
+}
+
+.luckyCard1 {
+  margin-top: 12px;
+  transform: rotate(-3.4deg);
+}
+
+.luckyCard2 {
+  margin-top: -8px;
+  transform: rotate(1.8deg) translateY(4px);
+}
+
+.luckyCard3 {
+  margin-top: 20px;
+  transform: rotate(-1.6deg);
+}
+
+.luckyCard4 {
+  margin-top: -4px;
+  transform: rotate(2.8deg) translateY(8px);
 }
 
 .luckyCard::before {
@@ -231,7 +254,7 @@
 }
 
 .luckyCard:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px) rotate(0deg) !important;
   border-color: rgba(124, 92, 191, 0.44);
   box-shadow: 0 12px 28px rgba(0,0,0,0.3), 0 0 20px rgba(91,63,160,0.18);
 }
@@ -268,10 +291,25 @@
 }
 
 .twoCol {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-2xl);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
   margin-bottom: var(--space-3xl);
+  align-items: start;
+  justify-content: center;
+}
+
+.twoCol > * {
+  flex: 1 1 340px;
+  max-width: 640px;
+}
+
+.panelA {
+  transform: translateY(14px) rotate(-1.1deg);
+}
+
+.panelB {
+  transform: translateY(-14px) rotate(1.35deg);
 }
 
 /* Report Header */
@@ -280,10 +318,11 @@
   align-items: center;
   gap: var(--space-lg);
   margin-bottom: var(--space-lg);
+  justify-content: flex-start;
 }
 
 .reportHeaderLine {
-  flex: 1;
+  flex: 0 0 90px;
   height: 1px;
   background: linear-gradient(to right, transparent, rgba(124,92,191,0.4), transparent);
 }
@@ -303,12 +342,13 @@
 }
 
 .reportSubtitle {
-  text-align: center;
+  text-align: left;
   color: var(--text-muted);
   font-style: italic;
   margin-bottom: var(--space-xl);
   padding-bottom: var(--space-lg);
   border-bottom: 1px solid rgba(124,92,191,0.18);
+  max-width: 58ch;
 }
 
 /* ─── Footer ─── */
@@ -350,11 +390,23 @@
     justify-content: center;
   }
 
-  .luckyGrid {
-    grid-template-columns: repeat(2, 1fr);
+  .luckyCard,
+  .luckyCard1,
+  .luckyCard2,
+  .luckyCard3,
+  .luckyCard4 {
+    width: 100%;
+    margin-top: 0;
+    transform: none;
   }
 
-  .twoCol {
-    grid-template-columns: 1fr;
+  .twoCol > * {
+    flex-basis: 100%;
+    max-width: none;
+  }
+
+  .panelA,
+  .panelB {
+    transform: none;
   }
 }
