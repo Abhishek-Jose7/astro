@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { AnimatePresence, motion, useMotionValue, useSpring } from 'framer-motion';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { AnimatePresence, motion, useAnimation, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import StarField from '@/components/StarField';
 import BirthForm from '@/components/BirthForm';
 import ReadingPanel from '@/components/ReadingPanel';
@@ -9,164 +9,416 @@ import { castChart } from '@/engine/castChart';
 import { saveReading, getLastReading } from '@/engine/persistence';
 import styles from './page.module.css';
 
-// Isolated perpetual sigil orb — never triggers parent re-renders
-const SigilOrb = () => (
-  <motion.div
-    className={styles.sigilOrb}
-    animate={{ rotate: 360 }}
-    transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
-  >
-    <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className={styles.sigilSvg}>
-      <circle cx="100" cy="100" r="94" stroke="rgba(124,92,191,0.28)" strokeWidth="1" />
-      <circle cx="100" cy="100" r="70" stroke="rgba(196,160,85,0.22)" strokeWidth="0.8" strokeDasharray="4 8" />
-      <circle cx="100" cy="100" r="46" stroke="rgba(124,92,191,0.18)" strokeWidth="0.6" />
-      {/* Pentagram lines */}
-      <path d="M100 10 L121 76 L190 76 L134 117 L156 183 L100 142 L44 183 L66 117 L10 76 L79 76 Z"
-        stroke="rgba(196,160,85,0.3)" strokeWidth="0.8" fill="none" />
-      {/* Compass points */}
-      <line x1="100" y1="6" x2="100" y2="20" stroke="rgba(196,160,85,0.5)" strokeWidth="1" />
-      <line x1="194" y1="100" x2="180" y2="100" stroke="rgba(196,160,85,0.5)" strokeWidth="1" />
-      <line x1="100" y1="194" x2="100" y2="180" stroke="rgba(196,160,85,0.5)" strokeWidth="1" />
-      <line x1="6" y1="100" x2="20" y2="100" stroke="rgba(196,160,85,0.5)" strokeWidth="1" />
-      <circle cx="100" cy="100" r="5" fill="rgba(196,160,85,0.6)" />
-    </svg>
-  </motion.div>
-);
-
-// Isolated floating rune symbols
-const FloatingRunes = () => {
-  const runes = [
-    { glyph: 'ᚨ', x: '8%', y: '18%', delay: 0 },
-    { glyph: 'ᚷ', x: '88%', y: '12%', delay: 1.2 },
-    { glyph: 'ᛏ', x: '4%', y: '72%', delay: 2.4 },
-    { glyph: 'ᚱ', x: '92%', y: '68%', delay: 0.8 },
-    { glyph: 'ᛉ', x: '50%', y: '5%', delay: 1.8 },
-    { glyph: 'ᚹ', x: '78%', y: '85%', delay: 3.0 },
-    { glyph: 'ᛋ', x: '22%', y: '88%', delay: 0.4 },
-  ];
-
-  return (
-    <div className={styles.runesLayer} aria-hidden="true">
-      {runes.map((r, i) => (
-        <motion.span
-          key={i}
-          className={styles.rune}
-          style={{ left: r.x, top: r.y }}
-          animate={{ opacity: [0.07, 0.22, 0.07], y: [0, -12, 0] }}
-          transition={{ duration: 6 + i, repeat: Infinity, delay: r.delay, ease: 'easeInOut' }}
-        >
-          {r.glyph}
-        </motion.span>
-      ))}
-    </div>
-  );
-};
-
-const PinIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M8 4h8l-2 5 3 3-1 1-4-2-2 7-1-1 2-7-4 2-1-1 3-3-2-5Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-  </svg>
-);
-
-const MatchboxIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="4" y="6" width="16" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
-    <path d="M8 10h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    <path d="M9 14h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-  </svg>
-);
-
-const EyeCharmIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M2.5 12C4.8 8.3 8.1 6.5 12 6.5s7.2 1.8 9.5 5.5c-2.3 3.7-5.6 5.5-9.5 5.5S4.8 15.7 2.5 12Z" stroke="currentColor" strokeWidth="1.5" />
-    <circle cx="12" cy="12" r="2.6" stroke="currentColor" strokeWidth="1.5" />
-  </svg>
-);
-
-const FEATURES = [
-  { num: '01', label: 'Pendulum read', note: 'micro-timings and instincts', icon: <path d="M12 3v6l4 7a4 4 0 1 1-8 0l4-7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /> },
-  { num: '02', label: 'Wax-sealed clues', note: 'motives, blocks, repeats', icon: <><circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="1.5" /><path d="M12 3v3M12 18v3M3 12h3M18 12h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></> },
-  { num: '03', label: 'Zodiac ledger', note: 'angles, patterns, signatures', icon: <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3l1.5 4.5L18 11l-4.5 1.5L12 17l-1.5-4.5L6 11l4.5-1.5L12 5z" fill="none" stroke="currentColor" strokeWidth="1.2" /> },
-  { num: '04', label: 'Heart weather', note: 'attachments and timing', icon: <path d="M12 21C12 21 3 15.5 3 9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-9 12-9 12Z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /> },
-  { num: '05', label: 'Work omen', note: 'career arcs and pressure points', icon: <><path d="M2 20h20M5 20V10l7-7 7 7v10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><rect x="9" y="14" width="6" height="6" stroke="currentColor" strokeWidth="1.5" /></> },
-  { num: '06', label: 'Tarot spill', note: 'short-range future pressure', icon: <><path d="M9 19V6l12-3v13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><circle cx="6" cy="19" r="3" stroke="currentColor" strokeWidth="1.5" /><circle cx="18" cy="16" r="3" stroke="currentColor" strokeWidth="1.5" /></> },
+// ─────────────────────────────────────────────
+// CONSTELLATION DATA
+// ─────────────────────────────────────────────
+const STARS = [
+  { id: 0,  x: 50,  y: 44, r: 3.2, bright: true  },  // ← the chosen star, dead centre
+  { id: 1,  x: 32,  y: 28, r: 1.4, bright: false },
+  { id: 2,  x: 44,  y: 22, r: 1.8, bright: false },
+  { id: 3,  x: 58,  y: 20, r: 1.2, bright: false },
+  { id: 4,  x: 70,  y: 32, r: 1.6, bright: false },
+  { id: 5,  x: 74,  y: 48, r: 1.3, bright: false },
+  { id: 6,  x: 64,  y: 60, r: 2.0, bright: false },
+  { id: 7,  x: 40,  y: 62, r: 1.5, bright: false },
+  { id: 8,  x: 26,  y: 54, r: 1.1, bright: false },
+  { id: 9,  x: 22,  y: 40, r: 1.7, bright: false },
+  { id: 10, x: 37,  y: 14, r: 1.0, bright: false },
+  { id: 11, x: 62,  y: 12, r: 1.3, bright: false },
+  { id: 12, x: 80,  y: 22, r: 0.9, bright: false },
+  { id: 13, x: 85,  y: 58, r: 1.1, bright: false },
+  { id: 14, x: 18,  y: 68, r: 1.0, bright: false },
+  { id: 15, x: 55,  y: 72, r: 1.2, bright: false },
+  { id: 16, x: 12,  y: 30, r: 0.8, bright: false },
+  { id: 17, x: 88,  y: 40, r: 0.9, bright: false },
 ];
 
-const OBJECTS = [
-  { label: 'Brass pendulum', meta: 'swing test', icon: <EyeCharmIcon /> },
-  { label: 'Matchbook notes', meta: 'quick tells', icon: <MatchboxIcon /> },
-  { label: 'Pinned vellum', meta: 'birth clues', icon: <PinIcon /> },
+// Lines connecting stars (pairs of star IDs)
+const LINES = [
+  [0,2],[0,4],[0,7],[0,9],
+  [1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,1],
+  [2,10],[3,11],[10,11],[11,12],[12,13],[5,13],
+  [8,14],[14,15],[15,6],[7,15],
+  [1,16],[9,16],[4,17],[5,17],
 ];
 
-function TiltCard({ className, children, tilt = 10, ...motionProps }) {
-  const ref = useRef(null);
-  const rx = useMotionValue(0);
-  const ry = useMotionValue(0);
-  const sx = useSpring(rx, { stiffness: 180, damping: 22, mass: 0.5 });
-  const sy = useSpring(ry, { stiffness: 180, damping: 22, mass: 0.5 });
+// ─────────────────────────────────────────────
+// CONSTELLATION PRELOADER
+// ─────────────────────────────────────────────
+function ConstellationPreloader({ onDone }) {
+  const [phase, setPhase] = useState('draw');   // draw | pulse | zoom | flash
+  const svgRef = useRef(null);
 
-  function onMove(event) {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const px = (event.clientX - rect.left) / rect.width;
-    const py = (event.clientY - rect.top) / rect.height;
-    rx.set((0.5 - py) * tilt);
-    ry.set((px - 0.5) * tilt);
-  }
+  useEffect(() => {
+    // Phase timeline
+    const t1 = setTimeout(() => setPhase('pulse'),  2200);
+    const t2 = setTimeout(() => setPhase('zoom'),   3400);
+    const t3 = setTimeout(() => setPhase('flash'),  5000);
+    const t4 = setTimeout(() => onDone(),           5700);
+    return () => [t1,t2,t3,t4].forEach(clearTimeout);
+  }, [onDone]);
 
-  function onLeave() {
-    rx.set(0);
-    ry.set(0);
-  }
+  const lineVariants = {
+    hidden: { pathLength: 0, opacity: 0 },
+    visible: (i) => ({
+      pathLength: 1,
+      opacity: 0.22,
+      transition: { duration: 0.55, delay: 0.04 * i, ease: 'easeOut' },
+    }),
+  };
+
+  const starVariants = {
+    hidden: { scale: 0, opacity: 0 },
+    visible: (i) => ({
+      scale: 1,
+      opacity: STARS[i].bright ? 1 : 0.7,
+      transition: { duration: 0.4, delay: 0.03 * i + 0.1, ease: [0.23,1,0.32,1] },
+    }),
+  };
+
+  // Zoom: scale up toward the chosen star at 50%,44%
+  const zoomAnim = phase === 'zoom' || phase === 'flash'
+    ? { scale: 18, x: '-50%', y: '-44%', transition: { duration: 1.6, ease: [0.4,0,0.1,1] } }
+    : {};
+
+  const flashAnim = phase === 'flash'
+    ? { opacity: 0, transition: { duration: 0.35, delay: 0.1 } }
+    : {};
 
   return (
     <motion.div
-      ref={ref}
-      className={className}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-      style={{ rotateX: sx, rotateY: sy, transformStyle: 'preserve-3d' }}
-      {...motionProps}
+      className={styles.preloader}
+      {...flashAnim}
     >
-      {children}
+      {/* Deep space background pulse */}
+      <motion.div
+        className={styles.preloaderBg}
+        animate={phase === 'pulse' || phase === 'zoom'
+          ? { opacity: [0.6,1,0.6], transition: { duration: 1.2, repeat: 2 } }
+          : {}}
+      />
+
+      {/* SVG constellation — zooms toward chosen star */}
+      <motion.div
+        className={styles.constellationWrap}
+        style={{ transformOrigin: '50% 44%' }}
+        animate={zoomAnim}
+      >
+        <svg
+          ref={svgRef}
+          className={styles.constellationSvg}
+          viewBox="0 0 100 100"
+          preserveAspectRatio="xMidYMid meet"
+        >
+          {/* Lines */}
+          {LINES.map(([a,b], i) => {
+            const A = STARS[a], B = STARS[b];
+            return (
+              <motion.line
+                key={`l-${a}-${b}`}
+                x1={A.x} y1={A.y} x2={B.x} y2={B.y}
+                stroke="rgba(196,160,85,0.55)"
+                strokeWidth="0.18"
+                custom={i}
+                variants={lineVariants}
+                initial="hidden"
+                animate="visible"
+              />
+            );
+          })}
+
+          {/* Dim stars */}
+          {STARS.filter(s => !s.bright).map((s, idx) => (
+            <motion.g key={s.id} custom={s.id} variants={starVariants} initial="hidden" animate="visible">
+              <motion.circle
+                cx={s.x} cy={s.y} r={s.r * 1.8}
+                fill="rgba(196,160,85,0.08)"
+                animate={{ r: [s.r * 1.8, s.r * 2.8, s.r * 1.8] }}
+                transition={{ duration: 2.8 + idx * 0.3, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              <circle cx={s.x} cy={s.y} r={s.r} fill="rgba(230,218,255,0.85)" />
+            </motion.g>
+          ))}
+
+          {/* The chosen bright star — extra glow rings */}
+          {(() => {
+            const s = STARS[0];
+            return (
+              <motion.g custom={0} variants={starVariants} initial="hidden" animate="visible">
+                {/* Outer pulse ring */}
+                <motion.circle
+                  cx={s.x} cy={s.y} r={s.r * 5}
+                  fill="none"
+                  stroke="rgba(196,160,85,0.18)"
+                  strokeWidth="0.3"
+                  animate={phase === 'pulse' || phase === 'zoom'
+                    ? { r: [s.r*5, s.r*9, s.r*5], opacity: [0.3,0,0.3] }
+                    : {}}
+                  transition={{ duration: 1.2, repeat: Infinity }}
+                />
+                <motion.circle
+                  cx={s.x} cy={s.y} r={s.r * 3}
+                  fill="rgba(196,160,85,0.15)"
+                  animate={{ r: [s.r*3, s.r*4.5, s.r*3] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                <circle cx={s.x} cy={s.y} r={s.r} fill="#f0d488" filter="url(#brightGlow)" />
+                {/* 4-point star spike */}
+                <motion.path
+                  d={`M${s.x} ${s.y-s.r*3.5} L${s.x+0.3} ${s.y-0.3} L${s.x+s.r*3.5} ${s.y} L${s.x+0.3} ${s.y+0.3} L${s.x} ${s.y+s.r*3.5} L${s.x-0.3} ${s.y+0.3} L${s.x-s.r*3.5} ${s.y} L${s.x-0.3} ${s.y-0.3} Z`}
+                  fill="rgba(240,212,138,0.55)"
+                  animate={phase === 'pulse' || phase === 'zoom'
+                    ? { opacity: [0.5,1,0.5], scale:[1,1.3,1], transformOrigin:`${s.x}px ${s.y}px` }
+                    : { opacity: 0.5 }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                />
+
+                <defs>
+                  <filter id="brightGlow" x="-100%" y="-100%" width="300%" height="300%">
+                    <feGaussianBlur stdDeviation="0.8" result="blur" />
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                  </filter>
+                </defs>
+              </motion.g>
+            );
+          })()}
+        </svg>
+      </motion.div>
+
+      {/* Label */}
+      <motion.p
+        className={styles.preloaderLabel}
+        animate={phase === 'zoom' || phase === 'flash' ? { opacity: 0 } : { opacity: [0,1], transition: { delay: 1.8 } }}
+      >
+        reading the heavens&hellip;
+      </motion.p>
     </motion.div>
   );
 }
 
+// ─────────────────────────────────────────────
+// CRYSTAL BALL SVG (reusable, size-controlled)
+// ─────────────────────────────────────────────
+function CrystalBallSvg({ id = 'main', className, swirling = false }) {
+  const uid = `cb_${id}`;
+  return (
+    <svg className={className} viewBox="0 0 260 290" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Stand */}
+      <ellipse cx="130" cy="272" rx="54" ry="10" fill={`url(#${uid}sg)`} opacity="0.9" />
+      <rect x="107" y="246" width="46" height="28" rx="7" fill={`url(#${uid}sb)`} />
+      <ellipse cx="130" cy="246" rx="23" ry="8" fill={`url(#${uid}st)`} />
+      {/* Ball shadow */}
+      <ellipse cx="130" cy="242" rx="94" ry="14" fill="rgba(0,0,0,0.42)" />
+      {/* Sphere */}
+      <circle cx="130" cy="124" r="108" fill={`url(#${uid}bo)`} />
+      <circle cx="130" cy="124" r="106" fill={`url(#${uid}bi)`} />
+      {/* Nebulae */}
+      <motion.ellipse
+        cx="108" cy="104" rx="54" ry="40"
+        fill={`url(#${uid}nv)`} opacity="0.38"
+        style={{ transformOrigin: '108px 104px' }}
+        animate={swirling ? { rotate: [0, 360] } : {}}
+        transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
+      />
+      <motion.ellipse
+        cx="158" cy="148" rx="42" ry="30"
+        fill={`url(#${uid}nc)`} opacity="0.24"
+        style={{ transformOrigin: '158px 148px' }}
+        animate={swirling ? { rotate: [360, 0] } : {}}
+        transition={{ duration: 36, repeat: Infinity, ease: 'linear' }}
+      />
+      <ellipse cx="130" cy="116" rx="32" ry="50" fill={`url(#${uid}nd)`} opacity="0.3" />
+      {/* Orbital rings */}
+      <ellipse cx="130" cy="124" rx="104" ry="28" stroke="rgba(196,160,85,0.16)" strokeWidth="0.9" fill="none" transform="rotate(-12 130 124)" strokeDasharray="5 9" />
+      <ellipse cx="130" cy="124" rx="82" ry="18" stroke="rgba(124,92,191,0.13)" strokeWidth="0.7" fill="none" transform="rotate(22 130 124)" strokeDasharray="3 11" />
+      {/* Interior stars */}
+      <circle cx="96"  cy="92"  r="1.5" fill="rgba(240,212,138,0.9)" />
+      <circle cx="164" cy="86"  r="1.1" fill="rgba(240,212,138,0.7)" />
+      <circle cx="150" cy="152" r="1.7" fill="rgba(200,180,255,0.85)"/>
+      <circle cx="110" cy="160" r="1.0" fill="rgba(200,180,255,0.6)" />
+      <circle cx="174" cy="128" r="1.3" fill="rgba(240,212,138,0.65)"/>
+      <circle cx="84"  cy="140" r="1.1" fill="rgba(200,180,255,0.7)" />
+      <circle cx="136" cy="70"  r="1.2" fill="rgba(240,212,138,0.8)" />
+      <circle cx="118" cy="176" r="0.9" fill="rgba(200,180,255,0.5)" />
+      {/* Sheen */}
+      <ellipse cx="98" cy="82" rx="36" ry="24" fill={`url(#${uid}sh)`} opacity="0.44" transform="rotate(-20 98 82)" />
+      <ellipse cx="90" cy="76" rx="15" ry="9" fill="rgba(255,255,255,0.2)" transform="rotate(-20 90 76)" />
+      {/* Rim */}
+      <circle cx="130" cy="124" r="106" stroke={`url(#${uid}rim)`} strokeWidth="1.5" fill="none" />
+
+      <defs>
+        <radialGradient id={`${uid}bo`} cx="38%" cy="34%" r="68%">
+          <stop offset="0%"   stopColor="#1e1040" />
+          <stop offset="55%"  stopColor="#0d0820" />
+          <stop offset="100%" stopColor="#030208" />
+        </radialGradient>
+        <radialGradient id={`${uid}bi`} cx="42%" cy="36%" r="72%">
+          <stop offset="0%"   stopColor="rgba(80,50,160,0.0)" />
+          <stop offset="50%"  stopColor="rgba(40,20,90,0.4)" />
+          <stop offset="100%" stopColor="rgba(5,3,15,0.9)" />
+        </radialGradient>
+        <radialGradient id={`${uid}nv`} cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stopColor="#7c5cbf" />
+          <stop offset="100%" stopColor="transparent" />
+        </radialGradient>
+        <radialGradient id={`${uid}nc`} cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stopColor="#8b2252" />
+          <stop offset="100%" stopColor="transparent" />
+        </radialGradient>
+        <radialGradient id={`${uid}nd`} cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stopColor="#3a1870" />
+          <stop offset="100%" stopColor="transparent" />
+        </radialGradient>
+        <radialGradient id={`${uid}sh`} cx="35%" cy="30%" r="65%">
+          <stop offset="0%"   stopColor="rgba(255,255,255,0.55)" />
+          <stop offset="100%" stopColor="transparent" />
+        </radialGradient>
+        <linearGradient id={`${uid}rim`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stopColor="rgba(196,160,85,0.38)" />
+          <stop offset="50%"  stopColor="rgba(200,180,255,0.22)" />
+          <stop offset="100%" stopColor="rgba(91,63,160,0.32)" />
+        </linearGradient>
+        <linearGradient id={`${uid}sg`} x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stopColor="#2a1a0e" />
+          <stop offset="50%"  stopColor="#6b4c1e" />
+          <stop offset="100%" stopColor="#2a1a0e" />
+        </linearGradient>
+        <linearGradient id={`${uid}sb`} x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stopColor="#1e1208" />
+          <stop offset="50%"  stopColor="#4a3212" />
+          <stop offset="100%" stopColor="#1e1208" />
+        </linearGradient>
+        <linearGradient id={`${uid}st`} x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stopColor="#2e1e0a" />
+          <stop offset="50%"  stopColor="#8a6022" />
+          <stop offset="100%" stopColor="#2e1e0a" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────────
+// FORM SCENE — crystal ball with form inside
+// ─────────────────────────────────────────────
+function CrystalFormScene({ onSubmit, loading, sucking }) {
+  return (
+    <div className={styles.formScene}>
+      {/* Ball */}
+      <motion.div
+        className={styles.ballOuter}
+        initial={{ scale: 0.3, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.9, ease: [0.23, 1, 0.32, 1] }}
+      >
+        <CrystalBallSvg id="form" className={styles.ballSvgFull} swirling />
+
+        {/* Ambient glow rings */}
+        <motion.div
+          className={styles.ballGlowRing}
+          animate={{ scale: [1, 1.22, 1], opacity: [0.18, 0.04, 0.18] }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+        />
+
+        {/* Form floats INSIDE the ball visually */}
+        <motion.div
+          className={styles.formInsideBall}
+          animate={sucking
+            ? { scale: 0.0, opacity: 0, y: 60, filter: 'blur(18px)' }
+            : { scale: 1, opacity: 1, y: 0, filter: 'blur(0px)' }
+          }
+          transition={sucking
+            ? { duration: 0.75, ease: [0.7, 0, 1, 0.5] }
+            : { duration: 0.5, ease: 'easeOut' }
+          }
+        >
+          <BirthForm onSubmit={onSubmit} loading={loading} />
+        </motion.div>
+
+        {/* Sucking particle burst when submitting */}
+        {sucking && (
+          <div className={styles.suckParticles} aria-hidden="true">
+            {Array.from({ length: 16 }).map((_, i) => (
+              <motion.div
+                key={i}
+                className={styles.suckParticle}
+                style={{
+                  '--angle': `${i * 22.5}deg`,
+                  '--dist': `${80 + Math.random() * 60}px`,
+                }}
+                initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+                animate={{ x: 0, y: 0, opacity: 0, scale: 0 }}
+                transition={{ duration: 0.7, ease: [0.7, 0, 1, 0.5] }}
+              />
+            ))}
+          </div>
+        )}
+      </motion.div>
+
+      {/* Title above ball */}
+      <motion.div
+        className={styles.sceneTitle}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.7 }}
+      >
+        <span className={styles.sceneTitleEye}>◉</span>
+        <span>The Oracle</span>
+        <span className={styles.sceneTitleEye}>◉</span>
+      </motion.div>
+
+      <motion.p
+        className={styles.sceneSubtitle}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.65, duration: 0.6 }}
+      >
+        speak your name into the void
+      </motion.p>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// MAIN PAGE
+// ─────────────────────────────────────────────
 export default function HomePage() {
-  const [view, setView] = useState('form');
-  const [reading, setReading] = useState(null);
+  // phases: 'preloader' | 'form' | 'sucking' | 'reading'
+  const [phase, setPhase] = useState('preloader');
+  const [reading, setReading]     = useState(null);
   const [birthData, setBirthData] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const saved = getLastReading();
     if (saved?.reading && saved?.birthData) {
       setReading(saved.reading);
       setBirthData(saved.birthData);
-      setView('reading');
+      // Even with saved data, show the preloader first
     }
   }, []);
 
+  const handlePreloaderDone = useCallback(() => {
+    setPhase('form');
+  }, []);
+
   function handleSubmit(data) {
-    setLoading(true);
+    setPhase('sucking');
     setTimeout(() => {
       try {
         const result = castChart(data);
         setReading(result);
         setBirthData(data);
-        setView('reading');
         saveReading(result, data);
+        setPhase('reading');
       } catch (err) {
-        console.error('Chart calculation error:', err);
-      } finally {
-        setLoading(false);
+        console.error('Chart error:', err);
+        setPhase('form');
       }
-    }, 900);
+    }, 1100);
   }
 
   function handleBack() {
-    setView('form');
+    setPhase('form');
     setReading(null);
     setBirthData(null);
   }
@@ -176,166 +428,37 @@ export default function HomePage() {
       <StarField />
 
       <AnimatePresence mode="wait">
-        {view === 'form' ? (
-          <motion.div
-            key="form-view"
-            className={styles.formView}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 0.97 }}
-            transition={{ duration: 0.6 }}
-          >
-            <FloatingRunes />
 
-            <div className={styles.salonLayout}>
-              <motion.section
-                className={styles.heroSide}
-                initial={{ opacity: 0, x: -60 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 1.1, ease: [0.23, 1, 0.32, 1] }}
-              >
-                <SigilOrb />
-
-                <div className={styles.heroContent}>
-                  <motion.p
-                    className={styles.eyebrow}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3, duration: 0.7 }}
-                  >
-                    <span className={styles.eyebrowDot} /> Midnight Reading Room
-                  </motion.p>
-
-                  <motion.h1
-                    className={styles.heroTitle}
-                    initial={{ opacity: 0, y: 24 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.45, duration: 0.9, ease: [0.23, 1, 0.32, 1] }}
-                  >
-                    <span className={styles.heroLine1}>The</span>
-                    <span className={styles.heroLine2}>Oracle</span>
-                  </motion.h1>
-
-                  <motion.p
-                    className={styles.tagline}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.65, duration: 0.8 }}
-                  >
-                    Smoked glass, candle wax, brass trinkets, handwritten cards, and one unnervingly specific reading.
-                    Bring a name and a birth date. Leave with the pattern underneath both.
-                  </motion.p>
-
-                  <motion.div
-                    className={styles.divider}
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ delay: 0.85, duration: 0.9, ease: [0.23, 1, 0.32, 1] }}
-                  />
-
-                  <motion.div
-                    className={styles.objectRow}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1.0, duration: 0.7 }}
-                  >
-                    {OBJECTS.map((item, i) => (
-                      <TiltCard
-                        key={item.label}
-                        className={styles.objectCard}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 1.1 + i * 0.08, duration: 0.5 }}
-                        tilt={8}
-                      >
-                        <span className={styles.objectIcon}>{item.icon}</span>
-                        <span className={styles.objectLabel}>{item.label}</span>
-                        <span className={styles.objectMeta}>{item.meta}</span>
-                      </TiltCard>
-                    ))}
-                  </motion.div>
-                </div>
-              </motion.section>
-
-              <TiltCard
-                className={styles.notePanel}
-                initial={{ opacity: 0, y: 28, rotate: -5 }}
-                animate={{ opacity: 1, y: 0, rotate: -3 }}
-                transition={{ delay: 0.35, duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
-                tilt={6}
-              >
-                <span className={styles.notePin}><PinIcon /></span>
-                <p className={styles.noteEyebrow}>Pinned To The Table</p>
-                <h2 className={styles.noteTitle}>Tonight's spread has teeth.</h2>
-                <div className={styles.noteList}>
-                  {FEATURES.slice(0, 3).map((item) => (
-                    <div key={item.num} className={styles.noteItem}>
-                      <svg className={styles.noteIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        {item.icon}
-                      </svg>
-                      <div>
-                        <p className={styles.noteItemLabel}>{item.label}</p>
-                        <p className={styles.noteItemMeta}>{item.note}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </TiltCard>
-
-              <motion.section
-                className={styles.formSide}
-                initial={{ opacity: 0, x: 60, y: 22 }}
-                animate={{ opacity: 1, x: 0, y: 0 }}
-                transition={{ delay: 0.2, duration: 1.0, ease: [0.23, 1, 0.32, 1] }}
-              >
-                <div className={styles.formLabel}>Reservation slip</div>
-                <BirthForm onSubmit={handleSubmit} loading={loading} />
-              </motion.section>
-
-              <motion.section
-                className={styles.features}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.9 }}
-              >
-                {FEATURES.map((f, i) => (
-                  <TiltCard
-                    key={f.num}
-                    className={styles.feature}
-                    initial={{ opacity: 0, y: 20, rotate: i % 2 === 0 ? -4 : 5 }}
-                    animate={{ opacity: 1, y: 0, rotate: i % 2 === 0 ? -4 : 5 }}
-                    transition={{ delay: 0.7 + i * 0.07, duration: 0.5 }}
-                    tilt={12}
-                  >
-                    <span className={styles.featureNum}>{f.num}</span>
-                    <svg className={styles.featureIconSvg} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      {f.icon}
-                    </svg>
-                    <span className={styles.featureLabel}>{f.label}</span>
-                    <span className={styles.featureMeta}>{f.note}</span>
-                  </TiltCard>
-                ))}
-              </motion.section>
-            </div>
-
-            <motion.div
-              className={styles.ambientBand}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.4, duration: 1.0 }}
-            >
-              {['Smoked mirror', 'Tarot backs', 'Pinned vellum', 'Wax marks', 'Birth ledger', 'Glass tokens', 'Brass pendulum'].map((t, i) => (
-                <span key={i} className={styles.bandItem}>{t}</span>
-              ))}
-            </motion.div>
+        {phase === 'preloader' && (
+          <motion.div key="preloader" exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
+            <ConstellationPreloader onDone={handlePreloaderDone} />
           </motion.div>
-        ) : (
+        )}
+
+        {(phase === 'form' || phase === 'sucking') && (
           <motion.div
-            key="reading-view"
+            key="form"
+            className={styles.formPhase}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 0.92 }}
+            transition={{ duration: 0.55 }}
+          >
+            <CrystalFormScene
+              onSubmit={handleSubmit}
+              loading={phase === 'sucking'}
+              sucking={phase === 'sucking'}
+            />
+          </motion.div>
+        )}
+
+        {phase === 'reading' && (
+          <motion.div
+            key="reading"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6 }}
           >
             <ReadingPanel
               reading={reading}
@@ -344,6 +467,7 @@ export default function HomePage() {
             />
           </motion.div>
         )}
+
       </AnimatePresence>
     </main>
   );

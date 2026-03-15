@@ -1,34 +1,46 @@
-﻿/* ─── Form Container: Liquid Glass ─── */
+﻿/* ── Form Container ── */
 .form {
   width: 100%;
   max-width: 480px;
   position: relative;
-  padding: var(--space-2xl);
-  border-radius: 28px;
-  border: 1px solid rgba(124, 92, 191, 0.28);
-  background: linear-gradient(145deg, rgba(16, 10, 32, 0.82), rgba(8, 5, 18, 0.9));
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  padding: var(--space-xl) var(--space-xl) var(--space-lg);
+  border-radius: 4px 28px 8px 20px;
+  border: 1px solid rgba(196, 160, 85, 0.22);
+  background: linear-gradient(158deg, rgba(12, 7, 26, 0.94), rgba(6, 4, 16, 0.97));
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
   box-shadow:
-    0 24px 64px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(200, 180, 255, 0.08),
-    0 0 0 0.5px rgba(124, 92, 191, 0.18);
+    0 32px 72px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(200, 180, 255, 0.07),
+    0 0 0 0.5px rgba(196, 160, 85, 0.15);
 }
 
-/* liquid glass inner refraction border */
+/* Aged-paper texture overlay */
+.form::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.3;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* Inner subtle border */
 .glassPane {
   position: absolute;
   inset: 1px;
-  border-radius: 27px;
-  border: 1px solid rgba(200, 180, 255, 0.06);
+  border-radius: 3px 27px 7px 19px;
+  border: 1px solid rgba(196, 160, 85, 0.06);
   pointer-events: none;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
-/* ─── Header ─── */
+/* ── Header ── */
 .header {
   text-align: center;
-  margin-bottom: var(--space-2xl);
+  margin-bottom: var(--space-xl);
   position: relative;
   z-index: 2;
 }
@@ -39,59 +51,59 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 72px;
-  height: 72px;
-  margin-bottom: var(--space-md);
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--space-sm);
 }
 
 .orbCore {
   position: absolute;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(124, 92, 191, 0.9) 0%, rgba(91, 63, 160, 0.5) 60%, transparent 100%);
-  box-shadow: 0 0 20px rgba(124, 92, 191, 0.6), 0 0 40px rgba(124, 92, 191, 0.2);
+  background: radial-gradient(circle, rgba(196,160,85,0.9) 0%, rgba(139,100,40,0.5) 60%, transparent 100%);
+  box-shadow: 0 0 20px rgba(196, 160, 85, 0.7), 0 0 40px rgba(196, 160, 85, 0.25);
   will-change: transform, opacity;
 }
 
 .orbSvg {
   position: absolute;
-  width: 72px;
-  height: 72px;
-  animation: orbRotate 20s linear infinite;
+  width: 64px;
+  height: 64px;
+  animation: orbRotate 22s linear infinite;
   will-change: transform;
 }
 
 @keyframes orbRotate {
   from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  to   { transform: rotate(360deg); }
 }
 
 .title {
   font-family: var(--font-heading);
-  font-size: 1.9rem;
-  letter-spacing: 0.08em;
+  font-size: 1.6rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: linear-gradient(128deg, var(--gold-light), var(--gold-accent) 50%, var(--amethyst));
+  background: linear-gradient(128deg, var(--gold-light), var(--gold-accent) 55%, var(--amethyst));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: var(--space-sm);
-  filter: drop-shadow(0 0 16px rgba(124, 92, 191, 0.3));
+  margin-bottom: var(--space-xs);
+  filter: drop-shadow(0 0 14px rgba(196, 160, 85, 0.35));
 }
 
 .subtitle {
   color: var(--text-muted);
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-style: italic;
   line-height: 1.6;
 }
 
-/* ─── Fields ─── */
+/* ── Fields ── */
 .fields {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: var(--space-lg);
   position: relative;
   z-index: 2;
 }
@@ -107,14 +119,15 @@
   align-items: center;
   gap: 8px;
   font-family: var(--font-heading);
-  font-size: 0.68rem;
-  letter-spacing: 0.18em;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--gold-accent);
+  opacity: 0.82;
 }
 
 .label svg {
-  color: var(--amethyst);
+  color: var(--gold-accent);
   flex-shrink: 0;
 }
 
@@ -150,7 +163,7 @@
   line-height: 1.4;
 }
 
-/* ─── Rune Divider ─── */
+/* ── Rune Divider ── */
 .runeRow {
   display: flex;
   align-items: center;
@@ -163,18 +176,18 @@
 .runeLine {
   flex: 1;
   height: 1px;
-  background: linear-gradient(to right, transparent, rgba(124, 92, 191, 0.28), transparent);
+  background: linear-gradient(to right, transparent, rgba(196, 160, 85, 0.24), transparent);
 }
 
 .runeChar {
   font-family: var(--font-heading);
   font-size: 1rem;
-  color: var(--amethyst);
-  opacity: 0.5;
+  color: var(--gold-accent);
+  opacity: 0.45;
   line-height: 1;
 }
 
-/* ─── Submit Button ─── */
+/* ── Submit Button ── */
 .submitBtn {
   display: flex;
   align-items: center;
@@ -183,44 +196,45 @@
   width: 100%;
   padding: 15px var(--space-xl);
   font-family: var(--font-heading);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-primary);
-  background: linear-gradient(138deg, var(--violet-deep), var(--violet-mid) 52%, var(--amethyst));
-  border: 1px solid rgba(200, 180, 255, 0.2);
-  border-radius: var(--radius-md);
+  color: #1a0e08;
+  background: linear-gradient(138deg, var(--gold) 0%, var(--gold-accent) 52%, var(--gold-light) 100%);
+  border: none;
+  border-radius: 2px 14px 4px 12px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   z-index: 2;
   box-shadow:
-    0 12px 36px rgba(91, 63, 160, 0.45),
-    inset 0 1px 0 rgba(200, 180, 255, 0.12);
+    0 10px 32px rgba(196, 160, 85, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
   will-change: transform;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 42px rgba(196, 160, 85, 0.5), inset 0 1px 0 rgba(255,255,255,0.25);
 }
 
 .btnShimmer {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    105deg,
-    transparent 20%,
-    rgba(255, 255, 255, 0.08) 50%,
-    transparent 80%
-  );
-  animation: shimmer 3.5s linear infinite;
+  background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.3) 50%, transparent 80%);
+  animation: shimmer 3.2s linear infinite;
   pointer-events: none;
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
+  0%   { transform: translateX(-100%); }
   100% { transform: translateX(200%); }
 }
 
 .submitBtn:disabled {
-  opacity: 0.7;
+  opacity: 0.65;
   cursor: wait;
 }
 
@@ -236,23 +250,23 @@
 
 @keyframes spin {
   from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  to   { transform: rotate(360deg); }
 }
 
-/* ─── Disclaimer ─── */
+/* ── Disclaimer ── */
 .disclaimer {
   text-align: center;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
-  margin-top: var(--space-lg);
+  margin-top: var(--space-md);
   font-style: italic;
-  opacity: 0.7;
+  opacity: 0.6;
   position: relative;
   z-index: 2;
   margin-bottom: 0;
 }
 
-/* ─── Responsive ─── */
+/* ── Responsive ── */
 @media (max-width: 900px) {
   .form {
     max-width: 100%;
