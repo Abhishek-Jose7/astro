@@ -191,19 +191,19 @@
   border-radius: 50%;
   background: var(--gold-accent);
   box-shadow: 0 0 8px rgba(196,160,85,0.8);
-  transform:
-    rotate(var(--angle))
-    translateX(var(--dist));
-  animation: suckIn 0.7s cubic-bezier(0.7,0,1,0.5) forwards;
+  animation: suckIn 0.75s cubic-bezier(0.8,0,1,0.6) var(--delay, 0s) forwards;
 }
 
 @keyframes suckIn {
-  from {
+  0% {
     transform: rotate(var(--angle)) translateX(var(--dist));
     opacity: 1;
-    scale: 1;
+    scale: 1.2;
   }
-  to {
+  80% {
+    opacity: 0.6;
+  }
+  100% {
     transform: rotate(var(--angle)) translateX(0px);
     opacity: 0;
     scale: 0;

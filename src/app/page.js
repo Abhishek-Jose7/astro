@@ -339,16 +339,14 @@ function CrystalFormScene({ onSubmit, loading, sucking }) {
         {sucking && (
           <div className={styles.suckParticles} aria-hidden="true">
             {Array.from({ length: 16 }).map((_, i) => (
-              <motion.div
+              <div
                 key={i}
                 className={styles.suckParticle}
                 style={{
                   '--angle': `${i * 22.5}deg`,
                   '--dist': `${80 + Math.random() * 60}px`,
+                  '--delay': `${i * 0.018}s`,
                 }}
-                initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
-                animate={{ x: 0, y: 0, opacity: 0, scale: 0 }}
-                transition={{ duration: 0.7, ease: [0.7, 0, 1, 0.5] }}
               />
             ))}
           </div>
